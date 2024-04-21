@@ -89,7 +89,7 @@ function Medium() {
 
   return (
     <> 
-        <Paper xs={12} sx={{width: '600px', margin: '20px'}}>
+        <Paper xs={12} elevation={4} sx={{width: '600px', margin: '20px'}}>
             <form onSubmit={handleSubmit(savemedium)}>
                 <Stack spacing={4} p={4}>            
                     <Box display="flex" justifyContent="space-between" alignItems="center">        
@@ -101,7 +101,7 @@ function Medium() {
                     </Box>
 
                     <MyTextField name="medium" id="medium" label="Medium" 
-                    placeholder="Add Medium" size="small" type="text"                     
+                    placeholder="Add Medium" size="small" type="text" required autoFocus                    
                     {...register("medium", 
                     { required: "Medium is required",
                     minLength:{
