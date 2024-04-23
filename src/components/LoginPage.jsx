@@ -62,6 +62,7 @@ export default function LoginPage() {
         const res = await customaxios.post('api/v1/auth/login/',{
           email: data['email'],
           password: data['password'],
+          branch: data['branch']
         })
         console.log("res ", res);
         if (res && res.data.access_token) {
@@ -74,8 +75,12 @@ export default function LoginPage() {
         }
         
     }catch(error){
-        console.log(error);
-        setError(error.message);            
+        setError(error.message);  
+        console.log("RETURNED ERROR: ", error);
+        if(error.response.status === 401){
+          console.log("RETURNED ERROR: ", error.response.data.detail);
+          setError("login",{message: error.response.data.detail});
+        }                  
     }        
 };
 
@@ -140,28 +145,7 @@ const handleChange = (event) => {
                 Sign in
               </Typography>
               <Box component="form" noValidate onSubmit={handleSubmit(doLogin)} sx={{ mt: 1 }}>
-
-                {/* <SelectDropdown id="branch" label="Branch" name="branch" 
-                options={options} 
-                required
-                {
-                  ...register("branch",
-                    { required: "Branch is required" })
-                }
-                /> */}
-
-                {/* <SelectDropdown
-                  id="branch"
-                  name="branch"
-                  label="Branch"
-                  control={control}
-                >
-                  {options.map((person) => (
-                      <MenuItem key={person.value} value={person.value}>
-                            {person.text}
-                      </MenuItem>
-                    ))}
-                </SelectDropdown> */}
+              
 
                 <MySelect
                   control={control}
@@ -230,6 +214,11 @@ const handleChange = (event) => {
                 {errors.branch && (
                   <Alert severity="error" sx={{ mt: 2 }}>
                     {errors.branch.message}
+                  </Alert>
+                )}
+                {errors.login && (
+                  <Alert severity="error" sx={{ mt: 2}}>
+                    {errors.login.message}
                   </Alert>
                 )}
                 <Copyright sx={{ mt: 5 }} />

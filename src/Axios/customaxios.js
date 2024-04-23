@@ -27,6 +27,8 @@ axiosInstance.interceptors.response.use((response)=>{
 },(error)=>{
     console.log("error from backend:<< ", error['response']);
     console.log("error from backend:>> ", error.response.data.code);
+    /* console.log("Message: ", error.response.data.detail)
+    console.log("Error msg: ", error.message.message) */
     /* if(error['response']){
         if(error.response.data.code === 'token_not_valid' && error['response']['status'] === 401 && error.response.data.detail === 'Given token not valid for any token type'){
             console.log("Unauthorized User, Login again");
@@ -49,10 +51,6 @@ axiosInstance.interceptors.response.use((response)=>{
         }
       });
     }
-
-
-
-
     console.log(error.message);
     return Promise.reject(error);
 })
