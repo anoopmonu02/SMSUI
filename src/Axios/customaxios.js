@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use((request)=>{
     //request.headers['Accept'] = 'application/json';
-    console.log("request sent to backend");
+    console.log("request sent to backend", request);
     const access_token = localStorage.getItem('access_token');
     if (access_token) {
       request.headers['Authorization'] = `Bearer ${access_token}`;

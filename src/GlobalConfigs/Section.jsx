@@ -11,6 +11,7 @@ import customaxios from '../Axios/customaxios';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -23,7 +24,7 @@ function Section() {
 
     const getData = () => {
         console.log("Medium::::::", localStorage.getItem('access_token'));
-        customaxios.get(`/api/v1/admin/section`,{
+        customaxios.get(`api/v1/admin/section`,{
             headers: {
                 'Content-Type': 'application/json'                
             }
@@ -43,6 +44,7 @@ function Section() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
         formState:{errors, isSubmitting},
     } = useForm();
 
@@ -75,15 +77,18 @@ function Section() {
         setError("");
         try{
             console.log(data);
-            const res = await customaxios.post('/api/v1/admin/section',{
-                section: data.section,
-                branch: localStorage.getItem('branch'),
+            var branch = localStorage.getItem('branch');
+            console.log(branch);
+            const res = await customaxios.post('/api/v1/admin/section/',{
+                section_name: data.section,
+                branch: branch,
             })
             console.log("res ", res);
             getData();
+            reset();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("Error",{message: error.response.data.detail});
         }        
     };
 
@@ -100,24 +105,24 @@ function Section() {
                         <MyButton size='small' variant="outlined" color="error" startIcon={<AddIcon />}>Add</MyButton>                
                     </Box>
 
-                    <MyTextField name="section" id="section" label="Section" 
+                    <MyTextField name="section" id="section" label="Section*" 
                     placeholder="Add Section" size="small" type="text"                     
                     {...register("section", 
-                    { required: "Section is required",
-                    minLength:{
-                        value: 3,
-                        message: "Section must be at least 3 characters"
-                    } })} />
+                    { required: "Section is required" })} />
                     
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
-                    )}
                     {errors.section && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.section.message}</p>  
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.section.message}
+                        </Alert>
+                    )}
+                    {errors.Error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.Error.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>

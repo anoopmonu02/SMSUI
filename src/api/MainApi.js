@@ -25,6 +25,9 @@ export function refreshToken() {
         //Redirecting to login page
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('branch');
+        localStorage.removeItem('branch_name');
+        localStorage.removeItem('username');
         window.location.href = '/';
     }
     throw error;

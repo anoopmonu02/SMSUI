@@ -11,6 +11,7 @@ import customaxios from '../Axios/customaxios';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -44,6 +45,7 @@ function Medium() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
         formState:{errors, isSubmitting},
     } = useForm();
 
@@ -81,9 +83,10 @@ function Medium() {
             })
             console.log("res ", res);
             getData();
+            reset();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("Error",{message: error.response.data.detail});
         }        
     };
 
@@ -100,24 +103,29 @@ function Medium() {
                         <MyButton size='small' variant="outlined" color="error" startIcon={<AddIcon />}>Add</MyButton>                
                     </Box>
 
-                    <MyTextField name="medium" id="medium" label="Medium" 
-                    placeholder="Add Medium" size="small" type="text" required autoFocus                    
+                    <MyTextField name="medium" id="medium" label="Medium*" 
+                    placeholder="Add Medium" size="small" type="text" autoFocus                    
                     {...register("medium", 
                     { required: "Medium is required",
-                    minLength:{
-                        value: 3,
-                        message: "Medium must be at least 3 characters"
-                    } })} />
+                        minLength:{
+                            value: 3,
+                            message: "Medium must be at least 3 characters"
+                        } })} 
+                    />
                     
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
-                    )}
                     {errors.medium && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.medium.message}</p>  
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.medium.message}
+                        </Alert>
+                        )}
+                    {errors.Error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.Error.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>

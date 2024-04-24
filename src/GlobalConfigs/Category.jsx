@@ -11,6 +11,7 @@ import customaxios from '../Axios/customaxios';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -44,6 +45,7 @@ function Category() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
         formState:{errors, isSubmitting},
     } = useForm();
 
@@ -81,9 +83,10 @@ function Category() {
             })
             console.log("res ", res);
             getData();
+            reset();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("root",{message: error.response.data.detail});    
         }        
     };
 
@@ -101,20 +104,33 @@ function Category() {
                         <MyButton size='small' variant="outlined" color="error" startIcon={<AddIcon />}>Add</MyButton>                
                     </Box>
 
-                    <MyTextField name="category" id="category" label="Category" 
+                    <MyTextField name="category" id="category" label="Category*" 
                     placeholder="Add Category" size="small" type="text"                     
                     {...register("category", 
-                    { required: "Category is required"})} />
+                    {required: "Category is required",                     
+                     pattern: {
+                        value: /^[A-Za-z]+$/i,
+                        message: 'Only letters are allowed and no special characters!'
+                      },
+                      minLength: {
+                        value: 1,
+                        message: 'Minimum 1 characters required'
+                      }
+                     })} />
                     
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
-                    )}
                     {errors.category && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.category.message}</p>  
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.category.message}
+                        </Alert>
+                    )}
+                    {errors.root && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.root.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>

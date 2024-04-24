@@ -11,6 +11,7 @@ import customaxios from '../Axios/customaxios';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -43,6 +44,7 @@ function Feehead() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
         formState:{errors, isSubmitting},
     } = useForm();
 
@@ -87,9 +89,10 @@ function Feehead() {
             })
             console.log("res ", res);
             getData();
+            reset();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("root",{message: error.response.data.detail});    
         }        
     };
   return (
@@ -109,23 +112,42 @@ function Feehead() {
                     placeholder="Add Feehead" size="small" type="text"                     
                     {...register("feehead", 
                     { required: "Feehead is required",
-                    minLength: 3})} />
+                    pattern: {
+                        value: /^[A-Za-z\s]+$/i,
+                        message: 'Only letters are allowed and no special characters!'
+                      },
+                    minLength: {
+                        value: 3,
+                        message: 'Minimum 3 characters required'
+                      }})} />
 
                     <MyTextField name="description" id="description" label="Description" 
                     placeholder="description" size="small" type="text"                     
                     {...register("description",{
-                        maxLength: 255
+                        maxLength: {
+                            value: 200,
+                            message: 'Maximum 200 characters allowed'
+                        }
                     })} />
                     
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
-                    )}
                     {errors.feehead && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.feehead.message}</p>  
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.feehead.message}
+                        </Alert>
+                    )}
+                    {errors.description && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.description.message}
+                        </Alert>
+                    )}
+                    {errors.root && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.root.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>

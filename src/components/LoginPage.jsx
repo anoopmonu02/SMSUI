@@ -70,7 +70,8 @@ export default function LoginPage() {
           localStorage.setItem('access_token', res.data.access_token);
           localStorage.setItem('refresh_token', res.data.refresh_token);
           localStorage.setItem('username', res.data.name);
-          localStorage.setItem('branch', data['branch']);
+          localStorage.setItem('branch', res.data.branch);
+          localStorage.setItem('branch_name', res.data.branch_name);
           navigate('/dashboard');
         }
         

@@ -11,6 +11,7 @@ import customaxios from '../Axios/customaxios';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -44,6 +45,7 @@ function Grade() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
         formState:{errors, isSubmitting},
     } = useForm();
 
@@ -80,11 +82,12 @@ function Grade() {
                 grade_name: data.grade,
                 branch: localStorage.getItem('branch')
             })
-            console.log("res ", res);
+            console.log("res ", res);            
             getData();
+            reset();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("Error",{message: error.message});
         }        
     };
 
@@ -110,11 +113,15 @@ function Grade() {
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
-                    )}
                     {errors.grade && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.grade.message}</p>  
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.grade.message}
+                        </Alert>
+                    )}
+                    {errors.Error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.Error.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>

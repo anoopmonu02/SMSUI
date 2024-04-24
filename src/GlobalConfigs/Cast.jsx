@@ -10,6 +10,7 @@ import customaxios from '../Axios/customaxios';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -51,7 +52,16 @@ function Cast() {
     }
 
     const getData = () => {
-        
+        customaxios.get(`/api/v1/universal/cast`,{
+            headers: {
+                'Content-Type': 'application/json'                
+            }
+        }).then((res) =>{
+            setMyData(res.data)
+            setLoading(false)
+        }).catch(error => {
+            console.error('Error fetching casts', error);
+          });
     }
 
     useEffect(() =>{
@@ -71,6 +81,7 @@ function Cast() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
         formState:{errors, isSubmitting},
     } = useForm();
 
@@ -107,9 +118,10 @@ function Cast() {
             })
             console.log("res ", res);
             getData();
+            reset();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("root",{message: error.response.data.detail});    
         }        
     };
 
@@ -140,7 +152,7 @@ function Cast() {
                             defaultValue='None'
                             {...register("category",{required: true})}
                             >
-                            {options.map((option, index) => (
+                            {options?.map((option, index) => (
                             <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
@@ -152,17 +164,30 @@ function Cast() {
                     <MyTextField name="cast" id="cast" label="Cast" 
                     placeholder="Add Cast" size="small" type="text"                     
                     {...register("cast", 
-                    { required: "Cast is required"})} />
+                    {required: "Cast is required",
+                    pattern: {
+                        value: /^[A-Za-z]+$/i,
+                        message: 'Only letters are allowed and no special characters!'
+                      },
+                    minLength: {
+                        value: 2,
+                        message: 'Minimum 2 characters required'
+                      }
+                    })} />
                     
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
-                    )}
                     {errors.cast && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.cast.message}</p>  
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.cast.message}
+                        </Alert>
+                    )}
+                    {errors.root && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.root.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>
