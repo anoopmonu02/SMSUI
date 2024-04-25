@@ -36,9 +36,7 @@ import { FaUserGear } from "react-icons/fa6";
 import { FaCriticalRole } from "react-icons/fa";
 import { HiMiniAcademicCap } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
-import Medium from '../GlobalConfigs/Medium';
-import Section from '../GlobalConfigs/Section';
-import { Container, Grid } from '@mui/material';
+import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 
 const drawerWidth = 260;
 
@@ -223,7 +221,7 @@ export default function SideNav() {
                                 (index===8?<BiSolidDiscount />:
                                 (index===10?<CiCalendarDate />:
                                 (index===9?<FaMoneyBill1 />:
-                                (index===11?<HiMiniAcademicCap />:
+                                (index===11?<SchoolRoundedIcon />:
                                 (index===14?<FaUserGear />:
                                 (index===15?<FaCriticalRole />:
                                 (<IoIosAdd />)))))))}    

@@ -144,6 +144,19 @@ function Academicyear() {
                         </DemoContainer>
                     </LocalizationProvider> */}
 
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                            <DatePicker label="Start Date" name="checkdate"
+                            size="small" type="Date"      
+                            selected={selectedDate}
+                            format='DD-MMM-YYYY'
+                            onChange={(date) => setSelectedDate(date)}          
+                            {...register("checkdate", 
+                            { required: "Start Date is required"})} 
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
+
                     <MyTextField name="startdate" id="startdate" label="Start Date" 
                     size="small" type="Date"                     
                     {...register("startdate", 
