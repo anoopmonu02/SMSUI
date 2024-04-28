@@ -4,6 +4,11 @@ import ListIcon from '@mui/icons-material/List';
 import { red} from '@mui/material/colors';
 import MyButton from '../components/MyButton';
 import FormHelperText from '@mui/material/FormHelperText';
+import * as glist from '../utils/constatslist';
+import { PrjSelectFields } from '../components/PrjSelectFields';
+import { useForm } from 'react-hook-form';
+
+import dayjs from 'dayjs';
 
 function Shorts() {
   const [formData, setFormData] = useState({
@@ -62,6 +67,28 @@ const handleSubmit = (event) => {
     console.log(formData);
 };
 
+const genderList = glist.genderList;
+const bloodGroupList = glist.choicesOfBloodGroup;
+const religionList = glist.choicesOfReligion;
+const bodyTypeList = glist.choicesOfBodyType;
+const relationshipList = glist.choicesOfRelationship;
+console.log("R: ",religionList);
+const 
+    {
+        register, 
+        setError,          
+        reset,
+        control,
+        formState:{errors, isSubmitting},
+    } = useForm();
+
+    const currentDate = new Date().toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+    const formattedDate = dayjs().format('YYYYMMDDHHmmss');
+
 return (
     <Box component="form" sx={{ display: 'flex', justifyContent: 'center', p: 1, pr:2 }}>
       <Paper sx={{ p: 3, width: '100%' }}>
@@ -86,8 +113,8 @@ return (
           <Grid container spacing={2}>
             <Grid item xs={6}>
                 <Box mb={2}>
-                  <TextField label="Registration Date" name='registration_date' id='registration_date' type="date" size="small" InputLabelProps={{ shrink: true }} />&nbsp;&nbsp;
-                  <TextField label="Registration No" name='registration_no' size="small" />
+                  <TextField label="Registration Date" name='registration_date' id='registration_date' value={currentDate} readOnly size="small" InputLabelProps={{ shrink: true }} />&nbsp;&nbsp;
+                  <TextField label="Registration No" name='registration_no' size="small" value={formattedDate} readOnly InputLabelProps={{ shrink: true }}/>
                 </Box>
                 <Box mb={2}>
                     <TextField label="Student's Name" name='name' size="small" fullWidth id="name"/>
@@ -122,25 +149,8 @@ return (
                   </FormControl>
 
                 </Box>
-              <Box mb={2}>
-                <FormControl sx={{minWidth: 120}}>
-                  <InputLabel id="Religion-select-label">Religion</InputLabel>
-                  <Select defaultValue={"No Preference"} size="small"
-                  labelId='Religion-select-label'
-                  id='religion'
-                  name='religion'
-                  label="Religion"
-                  >
-                    <MenuItem value="Hindu">Hindu</MenuItem>
-                    <MenuItem value="Muslim">Muslim</MenuItem>
-                    <MenuItem value="Christian">Christian</MenuItem>
-                    <MenuItem value="Sikh">Sikh</MenuItem>
-                    <MenuItem value="Jain">Jain</MenuItem>
-                    <MenuItem value="Buddhist">Buddhist</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
-                    <MenuItem value="No Preference">No Preference</MenuItem>
-                  </Select>
-                </FormControl>
+              <Box mb={2}>                
+                <PrjSelectFields options={religionList} label="Religion" name="religion" variant="outlined" size="small" sx={{minWidth: 120}} control={control}/>
               </Box>
               <Box mb={2}><TextField label="Comment" name='comments' size="small" fullWidth /></Box>
               <Box mb={2}>
@@ -153,16 +163,17 @@ return (
               <Box mb={2}><TextField label="Nationality" name='nationality' size="small" defaultValue="Indian" /></Box>
               <Box mb={2}><TextField label="Father's Occupation" name='father_occupation' size="small"  /></Box>
               <Box mb={2}><TextField label="Mother's Occupation" name='mother_occupation' size="small"  /></Box>
-              <FormControl >
+              {/* <FormControl >
                 <Box mb={2}><FormLabel component="legend">Gender</FormLabel>
                 <RadioGroup row size="small" name='gender' defaultValue="No Preference">
                   <FormControlLabel value="Male" control={<Radio size="small"/>} label="Male" />
                   <FormControlLabel value="Female" control={<Radio size="small"/>} label="Female" />
                   <FormControlLabel value="Others" control={<Radio size="small"/>} label="Others" />
                   <FormControlLabel value="No Preference" checked control={<Radio size="small"/>} label="No Preference" />
-                </RadioGroup></Box>
-              </FormControl>
-              
+                </RadioGroup>
+                </Box>
+              </FormControl> */}
+              <PrjSelectFields options={genderList} label="Gender" name="gender" variant="outlined" size="small" sx={{minWidth: 120}} control={control} defaultValue="No Preference"/>
             </Grid>
           </Grid>
           <Box 

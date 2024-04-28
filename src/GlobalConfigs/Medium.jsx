@@ -44,6 +44,7 @@ function Medium() {
     {
         register, 
         setError, 
+        clearErrors, 
         handleSubmit, 
         reset,
         formState:{errors, isSubmitting},
@@ -86,8 +87,13 @@ function Medium() {
             reset();
         }catch(error){
             console.log(error);
-            setError("Error",{message: error.response.data.detail});
+            console.log("--------",Object.values(error.response.data)[0]);
+            setError("Error",{message: Object.values(error.response.data)[0]});
         }        
+    };
+    const handleChange = (event) => {
+        console.log("+_+_+_+_+",event.target);
+        setError("");
     };
 
   return (
@@ -104,7 +110,9 @@ function Medium() {
                     </Box>
 
                     <MyTextField name="medium" id="medium" label="Medium*" 
-                    placeholder="Add Medium" size="small" type="text" autoFocus                    
+                    placeholder="Add Medium" 
+                    onChange={() => clearErrors("message")}
+                    size="small" type="text" autoFocus                    
                     {...register("medium", 
                     { required: "Medium is required",
                         minLength:{

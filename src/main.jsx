@@ -61,11 +61,11 @@ const routerProvider = createBrowserRouter([
         element: <Bank />,
       },
       {
-        path: "fee head",
+        path: "fee-head",
         element: <Feehead />,
       },
       {
-        path: "discount head",
+        path: "discount-head",
         element: <Discounthead />,
       },
       {
@@ -73,7 +73,7 @@ const routerProvider = createBrowserRouter([
         element: <Finehead />,
       },
       {
-        path: "academic year",
+        path: "academic-year",
         element: <Academicyear />,
       },
       {

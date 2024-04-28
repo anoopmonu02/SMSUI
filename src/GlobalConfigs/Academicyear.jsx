@@ -15,18 +15,38 @@ import {
     MaterialReactTable,
     useMaterialReactTable,
   } from 'material-react-table';
-  import dayjs from 'dayjs';
-  import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import PrjDatePicker from '../components/PrjDatePicker';
+import { Alert } from '@mui/material';
+import Dayjs from 'dayjs'
 
 function Academicyear() {
     const [myData, setMyData] = useState()
     const [loading, setLoading] = useState(true)
-    const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
-    const enddt = new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-    const [selectedendDate, setSelectedendDate] = useState(dayjs(enddt));    
+
+    const schema = yup.object().shape({
+        startdate: yup
+            .date()
+            .required('Start Date is required')
+            .typeError('Start Date must be a valid date'),
+        enddate: yup
+            .date()
+            .required('End Date is required')
+            .typeError('End Date must be a valid date')
+            .min(yup.ref('startdate'), 'End Date must be greater than Start Date'),
+        displayformat: yup
+            .string()
+            .required('Format is required'),
+        description: yup
+            .string()
+            .max(200, 'Description must be maximum 200 characters')
+    })
+
+    const defaultValues = {
+        displayformat: '',
+        description: ''
+    }
 
     const getData = () => {
         console.log("academicyear::::::", localStorage.getItem('access_token'));
@@ -51,8 +71,10 @@ function Academicyear() {
         register, 
         setError, 
         handleSubmit, 
+        reset,
+        control,
         formState:{errors, isSubmitting},
-    } = useForm();
+    } = useForm({defaultValues:defaultValues, resolver:yupResolver(schema)});
 
     //Can use default values if needed
     /* useForm({
@@ -63,19 +85,16 @@ function Academicyear() {
     }) */
 
     const columns = useMemo(
-        () => [
+        () => [          
           {
-            accessorKey: 'id', //access nested data with dot notation
-            header: 'ID',
-            size: 50,
-          },
-          {
-            accessorKey: 'session_startdate', //access nested data with dot notation
+            //accessorKey: 'session_startdate', //access nested data with dot notation
+            accessorFn: (row) => Dayjs(row.session_startdate).format("DD-MMM-YYYY"),
             header: 'Start Date',
             size: 100,
           },
           {
-            accessorKey: 'session_enddate', //access nested data with dot notation
+            //accessorKey: 'session_enddate', //access nested data with dot notation
+            accessorFn: (row) => Dayjs(row.session_enddate).format("DD-MMM-YYYY"),
             header: 'End Date',
             size: 100,
           },
@@ -97,22 +116,25 @@ function Academicyear() {
     const saveAcademicYear = async(data) => {
         setError("");
         try{
-            console.log(data);
-            
+            console.log(data);            
+            const StartDate = Dayjs(data.startdate["$d"]).format("YYYY-MM-DD")
+            const EndDate = Dayjs(data.enddate["$d"]).format("YYYY-MM-DD")
             const res = await customaxios.post('/api/v1/admin/academicyear/',{
-                session_startdate: data.startdate,
-                session_enddate: data.enddate,
+                session_startdate: StartDate,
+                session_enddate: EndDate,
                 session_displayformat: data.displayformat,  
                 session_description: data.description,
                 branch: localStorage.getItem('branch')
             })
             console.log("res ", res);
+            reset();
             getData();
         }catch(error){
             console.log(error);
-            setError("root",{message: "error.message"});    
+            setError("root",{message: Object.values(error.response.data)[0]});    
         }        
     };
+    
   return (
     <> 
         <Paper xs={12} elevation={4} sx={{width: '600px', margin: '20px'}}>
@@ -126,38 +148,12 @@ function Academicyear() {
                         <MyButton size='small' variant="outlined" color="error" startIcon={<AddIcon />}>Add</MyButton>                
                     </Box>
 
-                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                            <DatePicker name="startdate" id="startdate" label="Start Date" 
-                            size="small" type="Date"      
-                            selected={selectedDate}
-                            onChange={(date) => setSelectedDate(date)}          
-                            {...register("startdate", 
-                            { required: "Start Date is required"})} />
+                    
 
-                            <DatePicker  name="enddate" id="enddate" label="End Date" 
-                            size="small" type="Date"      
-                            selected={selectedendDate}
-                            onChange={(date) => setSelectedendDate(date)}               
-                            {...register("enddate", 
-                            { required: "End Date is required"})} />
-                        </DemoContainer>
-                    </LocalizationProvider> */}
+                    <PrjDatePicker name='startdate' label='Start Date*' control={control} size="small" requiredMsg="Start Date is required"/>
+                    <PrjDatePicker name='enddate' label='End Date*' control={control} size="small" requiredMsg="End Date is required"/>
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                            <DatePicker label="Start Date" name="checkdate"
-                            size="small" type="Date"      
-                            selected={selectedDate}
-                            format='DD-MMM-YYYY'
-                            onChange={(date) => setSelectedDate(date)}          
-                            {...register("checkdate", 
-                            { required: "Start Date is required"})} 
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-
-                    <MyTextField name="startdate" id="startdate" label="Start Date" 
+                    {/* <MyTextField name="startdate" id="startdate" label="Start Date" 
                     size="small" type="Date"                     
                     {...register("startdate", 
                     { required: "Start Date is required"})} />
@@ -165,28 +161,44 @@ function Academicyear() {
                     <MyTextField name="enddate" id="enddate" label="End Date" 
                     size="small" type="Date"                     
                     {...register("enddate", 
-                    { required: "End Date is required"})} />
+                    { required: "End Date is required"})} /> */}
 
-                    <MyTextField name="displayformat" id="displayformat" label="Display Format" 
+                    <MyTextField name="displayformat" id="displayformat" label="Display Format*" 
                     placeholder="Add Display Format" size="small" type="text"                     
-                    {...register("displayformat", 
-                    { required: "Display format is required"})} />  
+                    {...register("displayformat")} />  
 
                     <MyTextField name="description" id="description" label="Description" 
                     placeholder="description" size="small" type="text"                     
-                    {...register("description",{
-                        maxLength: 255
-                    })} />
+                    {...register("description")} />
                     
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <MyButton disabled={isSubmitting} fullWidth={false} ml={2} size='small' type="submit"
                         variant="contained" startIcon={<SaveOutlined />}>{isSubmitting?"Submitting...":"Save"}</MyButton>
                     </Box>   
-                    {errors.root && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.root.message}</p>  
+                    {errors.startdate && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.startdate.message}
+                        </Alert>
                     )}
-                    {errors.discount && (
-                        <p role="alert-error" style={{ color: 'red', fontSize: '10px' }}>{errors.discount.message}</p>  
+                    {errors.enddate && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.enddate.message}
+                        </Alert>
+                    )}
+                    {errors.displayformat && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.displayformat.message}
+                        </Alert>
+                    )}
+                    {errors.description && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.description.message}
+                        </Alert>
+                    )}
+                    {errors.Error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {errors.Error.message}
+                        </Alert>
                     )}
                 </Stack>
             </form>

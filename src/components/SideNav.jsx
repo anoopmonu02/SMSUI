@@ -24,19 +24,22 @@ import Shorts from '../pages/Shorts';
 import { PiStudentFill  } from "react-icons/pi";
 import ListSubheader from '@mui/material/ListSubheader';
 import Collapse from '@mui/material/Collapse';
-import { FcDataConfiguration } from "react-icons/fc";
+import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { IoIosAdd } from "react-icons/io";
-import { MdReceiptLong } from "react-icons/md";
-import { BiSolidDiscount } from "react-icons/bi";
-import { CiCalendarDate } from "react-icons/ci";
-import { FaMoneyBill1 } from "react-icons/fa6";
-import { FaUserGear } from "react-icons/fa6";
-import { FaCriticalRole } from "react-icons/fa";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import WebhookIcon from '@mui/icons-material/Webhook';
+import AccessibilityIcon from '@mui/icons-material/Accessibility';
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import { HiMiniAcademicCap } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
+import Avatar from '@mui/material/Avatar';
 
 const drawerWidth = 260;
 
@@ -110,6 +113,8 @@ export default function SideNav() {
   const [open, setOpen] = useState(true);
   const [menuData, setMenuData] = useState('Home')
   const [isGBCollapsed, setIsGBCollapsed] = useState(false);
+  const [isOCCollapsed, setIsOCCollapsed] = useState(false);
+  const [isSCCollapsed, setIsSCCollapsed] = useState(false);
 
   
 
@@ -124,9 +129,20 @@ export default function SideNav() {
   const handleGBDropdownClose = () => {
     setIsGBCollapsed(!isGBCollapsed);
   };
-  
-  const globalConfigurationList = ['Medium','Section','Grade','Category','Cast','Bank','Divider','Fee Head','Discount Head','Fine','Divider','Academic Year','Month-Map','Divider','Add User','Role*','Page Access*'];
 
+  const handleOCDropdownClose = () => {
+    setIsOCCollapsed(!isOCCollapsed);
+  };
+  const handleSCDropdownClose = () => {
+    setIsSCCollapsed(!isSCCollapsed);
+  };
+  
+  const globalConfigurationList = ['Medium','Section','Grade','Category','Cast','Bank','Divider','Fee Head','Discount Head','Fine','Divider','Academic Year','Month Map','Divider','Add User','Role*','Page Access*'];
+  const otherConfigurationList = ['Fee Class','Fee Month','Fee Date','Divider','Discount Class', 'Discount Month']
+  const studentConfigurationList = ['Registration', 'Migration','Update Aadhar Details','Update Student','Assign Discount']
+
+  const branchname = localStorage.getItem('branch_name');
+ 
   return (
     <>
         <Box sx={{ display: 'flex' }}>
@@ -151,9 +167,9 @@ export default function SideNav() {
                 >
                     <MenuIcon />
                 </IconButton>
-                <Typography variant="h6" noWrap component="div">
+                <Typography variant="h5" noWrap component="div" color='success.main'>
                     {/* <img src="./logo1.png" alt="logo" height={40} /> */}
-                    UAIC
+                    {branchname}
                 </Typography>
                 </Toolbar>
             </AppBar>
@@ -190,7 +206,7 @@ export default function SideNav() {
                                 justifyContent: 'center',
                             }}
                             >
-                            <FcDataConfiguration />
+                            <DisplaySettingsIcon color='success'/>
                             </ListItemIcon>
                             <ListItemText primary='Global Configuration' />
                             {isGBCollapsed? <ExpandLess /> : <ExpandMore />}
@@ -207,7 +223,7 @@ export default function SideNav() {
                                 px: 2.5,
                                 }}
                                 component={Link}
-                                to={text?.toLowerCase()}
+                                to={text?.toLowerCase()?.replace(' ','-')}
                             >
                                 <ListItemIcon
                                 sx={{
@@ -217,14 +233,15 @@ export default function SideNav() {
                                 }}                                
                                 >
                                     
-                                {index===7?<MdReceiptLong />:
-                                (index===8?<BiSolidDiscount />:
-                                (index===10?<CiCalendarDate />:
-                                (index===9?<FaMoneyBill1 />:
-                                (index===11?<SchoolRoundedIcon />:
-                                (index===14?<FaUserGear />:
-                                (index===15?<FaCriticalRole />:
-                                (<IoIosAdd />)))))))}    
+                                {index===7?<ReceiptLongIcon color='success'/>:
+                                (index===8?<MoneyOffIcon color='success'/>:
+                                (index===12?<CalendarMonthIcon color='success'/>:
+                                (index===9?<LocalAtmIcon color='success'/>:
+                                (index===11?<SchoolRoundedIcon color='success'/>:
+                                (index===14?<ManageAccountsIcon color='success'/>:
+                                (index===15?<WebhookIcon color='success'/>:
+                                (index===16?<AccessibilityIcon color='success'/>:
+                                (<AddCircleIcon color='success'/>))))))))}    
                                  
                                 
                                 </ListItemIcon>
@@ -237,10 +254,81 @@ export default function SideNav() {
                     
                     
                 </List>
+
                 <List component='nav' aria-labelledby="nested-list-subheaderGLBCONF"
                     subheader={
                         <ListSubheader component="div" id="nested-list-subheaderGLBCONF">
-                            Other Configuration
+                        Other Configuration
+                        </ListSubheader>
+                    }>  
+                    <ListItem key='Other Configuration' disablePadding sx={{ display: 'block' }} onClick={handleOCDropdownClose}>
+                        <ListItemButton
+                            sx={{
+                            minHeight: 48,
+                            justifyContent: open ? 'initial' : 'center',
+                            px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
+                            sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : 'auto',
+                                justifyContent: 'center',
+                            }}
+                            >
+                            <SettingsSuggestIcon color='success'/>
+                            </ListItemIcon>
+                            <ListItemText primary='Other Configuration' />
+                            {isOCCollapsed? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                    </ListItem>     
+                    <Collapse in={isOCCollapsed} timeout="auto" unmountOnExit>
+                        {otherConfigurationList.map((text, index) => (
+                            text==='Divider'?<Divider />:
+                            <ListItem key={text} disablePadding sx={{ display: 'block' }} onClick={() => setMenuData(text)}>
+                            <ListItemButton
+                                sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                                }}
+                                component={Link}
+                                to={text?.toLowerCase()?.replace(' ','-')}
+                            >
+                                <ListItemIcon
+                                sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                }}                                
+                                >
+                                    
+                                {index===7?<ReceiptLongIcon color='success'/>:
+                                (index===8?<MoneyOffIcon color='success'/>:
+                                (index===12?<CalendarMonthIcon color='success'/>:
+                                (index===9?<LocalAtmIcon color='success'/>:
+                                (index===11?<SchoolRoundedIcon color='success'/>:
+                                (index===14?<ManageAccountsIcon color='success'/>:
+                                (index===15?<WebhookIcon color='success'/>:
+                                (index===16?<AccessibilityIcon color='success'/>:
+                                (<AddCircleIcon color='success'/>))))))))}    
+                                 
+                                
+                                </ListItemIcon>
+                                <ListItemText primary={text} />
+                            </ListItemButton>
+                            </ListItem>
+                            
+                        ))}
+                    </Collapse>         
+                    
+                    
+                </List>
+
+                <List component='nav' aria-labelledby="nested-list-subheaderGLBCONF"
+                    subheader={
+                        <ListSubheader component="div" id="nested-list-subheaderGLBCONF">
+                            Student Configuration
                         </ListSubheader>
                     }
                 >
