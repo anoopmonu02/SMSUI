@@ -156,7 +156,8 @@ export default function SideNav() {
                   pr: '24px', // keep right padding when drawer closed
                 }}>
                 <IconButton
-                    color="inherit"
+                    //color="inherit"
+                    color='success'
                     aria-label="open drawer"
                     onClick={()=>{setOpen(!open)}}
                     edge="start"  
@@ -187,7 +188,7 @@ export default function SideNav() {
                 <Divider />
                 <List component='nav' aria-labelledby="nested-list-subheaderGLBCONF"
                     subheader={
-                        <ListSubheader component="div" id="nested-list-subheaderGLBCONF">
+                        <ListSubheader component="div" id="nested-list-subheaderGLBCONF" sx={{color:'success'}}>
                         Global Configuration
                         </ListSubheader>
                     }>  
@@ -208,7 +209,7 @@ export default function SideNav() {
                             >
                             <DisplaySettingsIcon color='success'/>
                             </ListItemIcon>
-                            <ListItemText primary='Global Configuration' />
+                            <ListItemText primary='Global Configuration' color='success'/>
                             {isGBCollapsed? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
                     </ListItem>     

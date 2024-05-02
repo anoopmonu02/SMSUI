@@ -9,6 +9,7 @@ export const PrjSelectFields = ({
     options,
     control,
     sxVal,
+    width,
     defaultValue = "",
     ...props
 }) => {
@@ -18,7 +19,7 @@ export const PrjSelectFields = ({
             control={control}
             defaultValue={defaultValue}            
             render={({ field }) => (
-                <FormControl variant={variant} sx={sxVal}>
+                <FormControl variant={variant} sx={{width:{width}}}>
                     <TextField {...field} select label={label} variant={variant} {...props}>
                         {options?.map(option => (
                             <MenuItem key={option.value} value={option.value}>

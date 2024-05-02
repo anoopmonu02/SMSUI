@@ -150,8 +150,8 @@ function Academicyear() {
 
                     
 
-                    <PrjDatePicker name='startdate' label='Start Date*' control={control} size="small" requiredMsg="Start Date is required"/>
-                    <PrjDatePicker name='enddate' label='End Date*' control={control} size="small" requiredMsg="End Date is required"/>
+                    <PrjDatePicker name='startdate' id="startdate" label='Start Date*' control={control} size="small" requiredMsg="Start Date is required"/>
+                    <PrjDatePicker name='enddate' id="enddate" label='End Date*' control={control} size="small" requiredMsg="End Date is required"/>
 
                     {/* <MyTextField name="startdate" id="startdate" label="Start Date" 
                     size="small" type="Date"                     

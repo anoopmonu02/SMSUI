@@ -5,10 +5,11 @@ function PrjTextFields({
     label,    
     variant,
     inputProps,
+    width,
     ...props
 }) {
   return (
-    <FormControl fullWidth sx={{mb: '1rem'}}>
+    <FormControl sx={{width:{width}}}>
         <TextField label={label} variant={variant} {...props}
         InputProps={inputProps}
         />

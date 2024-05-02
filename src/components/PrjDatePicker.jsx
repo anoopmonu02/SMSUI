@@ -11,7 +11,7 @@ function PrjDatePicker({
     name,
     control,
     size,
-    requiredMsg,
+    requiredMsg,    
     ...props
 }) {
   return (
@@ -22,7 +22,9 @@ function PrjDatePicker({
         control={control}
         defaultValue={null}
         render={({ field:{onChange, value}, formState }) => (
-        <DatePicker label={label} value={value} onChange={onChange} format="DD/MM/YYYY" size={size} />
+        <DatePicker label={label} value={value} onChange={onChange} format="DD/MM/YYYY" size={size} 
+        slotProps={{ textField: { size: 'small' } }}
+        />
         )}        
         />
       
