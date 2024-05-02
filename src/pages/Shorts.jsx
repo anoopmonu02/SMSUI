@@ -6,7 +6,7 @@ import MyButton from '../components/MyButton';
 import FormHelperText from '@mui/material/FormHelperText';
 import * as glist from '../utils/constatslist';
 import { PrjSelectFields } from '../components/PrjSelectFields';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 
 import PrjTextFields from '../components/PrjTextFields';
 import SelectDropdown from '../components/SelectDropdown';
@@ -15,29 +15,33 @@ import PrjDatePicker from '../components/PrjDatePicker';
 import SaveIcon from '@mui/icons-material/Save';
 import ClearIcon from '@mui/icons-material/Clear';
 import GroupHeader from '../components/GroupHeader';
-
+import { doCastLoad, doCityLoad, getBankData, getCategoryData, getGradeData, getMediumData, getProvinceData, getSectionData } from '../utils/globalconfigsjs';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import dayjs from 'dayjs';
 
 function Shorts() {
-  const [formData, setFormData] = useState({
+
+  const defaultValues = {
     name: '',
     father_name: '',
     mother_name: '',
-    gender: '',
+    gender: 'No Preference',
     dob: '',
-    category: '',
-    cast: '',
+    category: 'None',
+    cast: 'None',
     nationality: 'Indian',
     registration_no: '',
     registration_date: '',
     religion: '',
     father_occupation: '',
     mother_occupation: '',
-    blood_group: '',
+    comments: '',
+    blood_group: 'None',
     height: 0,
     weight: 0,
-    bodytype: '',
+    bodytype: 'Normal',
     address_permanent: '',
     landmark: '',
     province: '',
@@ -53,14 +57,39 @@ function Shorts() {
     remarks: '',
     student_type: 'Old',
     guardian_name: '',
-    relationship: '',
-    guardian_contact: 'No Prefrence',
+    relationship: 'No Prefrence',
+    guardian_contact: '',
     grade: '',
     section: '',
     branch: '',
     medium: '',
     status_school: 'Own',
-});
+    bank: 'None',
+    account_no: '',
+    aadhar_no: '',
+    bank_branch: '',
+    ifsc_code: '',
+}
+
+const schema = yup.object().shape({
+  startdate: yup
+      .date()
+      .required('Start Date is required')
+      .typeError('Start Date must be a valid date'),
+  enddate: yup
+      .date()
+      .required('End Date is required')
+      .typeError('End Date must be a valid date')
+      .min(yup.ref('startdate'), 'End Date must be greater than Start Date'),
+  displayformat: yup
+      .string()
+      .required('Format is required'),
+  description: yup
+      .string()
+      .max(200, 'Description must be maximum 200 characters')
+})
+
+const [formData, setFormData] = useState();
 
 const [mediumList, setMediumList] = useState([]);
 const [bankList, setBankList] = useState([]);
@@ -73,8 +102,7 @@ const [selectedProvince, setSelectedProvince] = useState("");
 const [cityList, setCityList] = useState([]);
 
 const [gradeList, setGradeList] = useState([]);
-const [selectedGrade, setSelectedGrade] = useState("");
-//const [cityList, setCityList] = useState([]);
+const [sectionList, setSectionList] = useState([]);
 
 const handleChange = (event) => {
     const { name, value } = event.target;
@@ -113,91 +141,33 @@ const
     const currentDate = dayjs().format('DD/MM/YYYY');
     const formattedDate = dayjs().format('YYYYMMDDHHmmss');
 
-    const getData = () => {
-      customaxios.get(`api/v1/universal/category`,{
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-          }
-      }).then((res) =>{
-        const newOptions = res.data.map((item) => {
-            return { value: item.id, label: item.category_name };
-        });
-        setCategoryList(newOptions);
-      }).catch((error) => {
-          console.log(error);
-      });
-
-      //get provinnce list
-      customaxios.get(`api/v1/universal/province`,{
-        headers: {
-            'Content-Type': 'application/json',
-            //'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      }).then((res) =>{
-        const newOptions = res.data.map((item) => {
-            return { value: item.id, label: item.province_name };
-        });
-        setProvinceList(newOptions);
-      }).catch((error) => {
-          console.log(error);
-      });
-
-      //get Medium list
-      customaxios.get(`api/v1/universal/medium`,{
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      }).then((res) =>{
-        const newOptions = res.data.map((item) => {
-            return { value: item.id, label: item.medium_name };
-        });
-        setMediumList(newOptions);
-      }).catch((error) => {
-          console.log(error);
-      });
+    const getData = () => {      
+      const access_token = localStorage.getItem('access_token');
+      const branchid = localStorage.getItem('branch');
+      //get category list
+      getCategoryData(access_token, setCategoryList)
+      //get provinnce list      
+      getProvinceData(setProvinceList)
+      //get Medium list      
+      getMediumData(access_token, setMediumList);
 
       //get Bank list
-      customaxios.get(`api/v1/universal/bank`,{
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      }).then((res) =>{
-        const newOptions = res.data.map((item) => {
-            return { value: item.id, label: item.bank_name };
-        });
-        setBankList(newOptions);
-      }).catch((error) => {
-          console.log(error);
-      });
+      getBankData(access_token, setBankList);
 
+      //get Grade list      
+      getGradeData(access_token, branchid, setGradeList);
+
+      //get section list     
+      getSectionData(access_token, branchid, setSectionList);
   }
 
   useEffect(() =>{
       getData()
   },[])
 
-  // Load child data when selectedParent changes
-  const doCastLoad = async(selectedCategory) => {
-    if (selectedCategory) {
-      console.log("Category selected, fetching casts...", selectedCategory)
-      await customaxios.post(`api/v1/universal/casts/by-category/`,{        
-        category_id: ""+selectedCategory
-      }).then((res) =>{
-        const newOptions = res.data.map((item) => {
-            return { value: item.id, label: item.cast_name };
-        });
-        setCastList(newOptions);
-      }).catch((error) => {
-          console.log(error);
-      });
-    }
-  }
-
   useEffect(() => {
-    doCastLoad(selectedCategory);
+    // Load child data when selectedParent changes
+    doCastLoad(selectedCategory, setCastList);
   }, [selectedCategory]);
 
   // Handle Category selection
@@ -205,25 +175,9 @@ const
     setSelectedCategory(event.target.value);
   };
 
-
-   // Load City data when Province changes
-   const doCityLoad = async(selectedProvince) => {
-    if (selectedProvince) {
-      console.log("Province selected, fetching cities...", selectedProvince)
-      await customaxios.get(`api/v1/universal/city/province/${selectedProvince}`)
-      .then((res) =>{
-        const newOptions = res.data.map((item) => {
-            return { value: item.id, label: item.city_name };
-        });
-        setCityList(newOptions);
-      }).catch((error) => {
-          console.log(error);
-      });
-    }
-  }
-
   useEffect(() => {
-    doCityLoad(selectedProvince);
+    // Load City data when Province changes
+    doCityLoad(selectedProvince, setCityList);
   }, [selectedProvince]);
 
   // Handle Category selection
@@ -235,19 +189,23 @@ return (
     <Box sx={{ display: 'flex', justifyContent: 'center', p: 1, pr:2 }}>
       <Paper sx={{ p: 3, width: '100%' }}>
         <Stack spacing={2}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" bgcolor={green[100]}>        
-            <Box display="flex" alignItems="center">
-                <Avatar variant="rounded" sx={{ bgcolor: '#43a047' }}>SR</Avatar>
-                <Box ml={2} >                  
-                  <Typography variant="h5" component="h2" gutterBottom >
-                    {messagetext}
-                  </Typography>                  
-                </Box>  
-            </Box>
-            <MyButton size='small' variant="contained" color="success" startIcon={<ListIcon />}>List Students</MyButton>                
-        </Box>      
+        <Box display="flex" justifyContent="space-between" alignItems="center" bgcolor={green[200]} sx={{
+          p: 2, // Adds padding inside the Box, value can be adjusted
+          borderRadius: 2, // Softens the edges, value can be adjusted for more rounded corners
+          boxShadow: 1, // Optional: Adds a subtle shadow for depth, can be adjusted or removed
+        }}> {/* Adjusted color */}
+          <Box display="flex" alignItems="center">
+              <Avatar variant="rounded" sx={{ bgcolor: '#43a047' }}>SR</Avatar>
+              <Box ml={2}>
+                  <Typography variant="h5" component="h2" gutterBottom>
+                      {messagetext}
+                  </Typography>
+              </Box>
+          </Box>
+          <MyButton variant="contained" color="success" startIcon={<ListIcon />}>List Students</MyButton>
+        </Box>
         <Divider />
-        <form method='post' onSubmit={handleSubmit}>        
+        <form method='post' onSubmit={handleSubmit} noValidate>        
         {/* <Box 
           ml={2} 
           sx={{ 
@@ -322,7 +280,7 @@ return (
             <Grid item xs={6}>
               <Box mb={2}><PrjTextFields label="Weight" name='weight' size="small" type="number" width='30%' /></Box>
               <Box mb={2}>
-              <PrjSelectFields options={bodyTypeList} label="Body Type" name="bodytype" width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} defaultValue="Other"/>
+              <PrjSelectFields options={bodyTypeList} label="Body Type" name="bodytype" width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} defaultValue="Normal"/>
               </Box>
             </Grid>
           </Grid>
@@ -440,36 +398,17 @@ return (
           <GroupHeader title="Current Academic Details" />
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Box mb={2}>
-                <FormControl sx={{minWidth: 220 }}>
-                    <InputLabel id="grade-select-label">Class</InputLabel>
-                    <Select
-                      labelId="grade-select-label"
-                      id="grade"
-                      name='grade'
-                      label="Class"
-                      onChange={handleChange}
-                      size='small'
-                      defaultValue={'None'}
-                    >
-                      <MenuItem value={'None'}>None</MenuItem>
-                    </Select>
-                </FormControl>&nbsp;&nbsp;
+              <Box mb={2}>                
+                <PrjSelectFields options={gradeList} label="Grade" name="grade" 
+                width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} 
+                defaultValue='' id='grade' />
+                &nbsp;&nbsp;
+                
+                <PrjSelectFields options={sectionList} label="Section" name="section" 
+                width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} 
+                defaultValue='' id='section' />
+                &nbsp;&nbsp;
 
-                <FormControl sx={{minWidth: 220 }}>
-                  <InputLabel id="section-select-label">Section</InputLabel>
-                  <Select
-                    labelId="section-select-label"
-                    id="section"
-                    name='section'
-                    label="Section"
-                    onChange={handleChange}
-                    size='small'
-                    defaultValue={'None'}
-                  >
-                    <MenuItem value={'None'}>None</MenuItem>
-                  </Select>
-                </FormControl>
               </Box>
               
             </Grid>
