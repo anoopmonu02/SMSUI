@@ -18,23 +18,25 @@ import GroupHeader from '../components/GroupHeader';
 import { doCastLoad, doCityLoad, getBankData, getCategoryData, getGradeData, getMediumData, getProvinceData, getSectionData } from '../utils/globalconfigsjs';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Alert } from '@mui/material';
 
 import dayjs from 'dayjs';
+import MySelect from '../components/MySelect';
 
 function Shorts() {
 
   const defaultValues = {
-    name: '',
+    sname: '',
     father_name: '',
     mother_name: '',
     gender: 'No Preference',
-    dob: '',
-    category: 'None',
-    cast: 'None',
+    dob: null,
+    //category: '',
+    //cast: '',
     nationality: 'Indian',
     registration_no: '',
     registration_date: '',
-    religion: '',
+    religion: 'No Preference',
     father_occupation: '',
     mother_occupation: '',
     comments: '',
@@ -44,8 +46,8 @@ function Shorts() {
     bodytype: 'Normal',
     address_permanent: '',
     landmark: '',
-    province: '',
-    city: '',
+    //province:'',
+    //city: '',
     pincode: '',
     mobile1: '',
     mobile2: '',
@@ -64,30 +66,12 @@ function Shorts() {
     branch: '',
     medium: '',
     status_school: 'Own',
-    bank: 'None',
+    bank: '1',
     account_no: '',
     aadhar_no: '',
     bank_branch: '',
     ifsc_code: '',
 }
-
-const schema = yup.object().shape({
-  startdate: yup
-      .date()
-      .required('Start Date is required')
-      .typeError('Start Date must be a valid date'),
-  enddate: yup
-      .date()
-      .required('End Date is required')
-      .typeError('End Date must be a valid date')
-      .min(yup.ref('startdate'), 'End Date must be greater than Start Date'),
-  displayformat: yup
-      .string()
-      .required('Format is required'),
-  description: yup
-      .string()
-      .max(200, 'Description must be maximum 200 characters')
-})
 
 const [formData, setFormData] = useState();
 
@@ -104,6 +88,66 @@ const [cityList, setCityList] = useState([]);
 const [gradeList, setGradeList] = useState([]);
 const [sectionList, setSectionList] = useState([]);
 
+const [registrationDate, setRegistrationDate] = useState(null);
+const [registrationNo, setRegistrationNo] = useState(null);
+
+const schema = yup.object().shape({
+  sname: yup
+      .string()
+      .required('Student Name is required')
+      .matches(/^[a-zA-Z\s]+$/, 'Only alphabets and spaces are allowed')
+      .min(2, 'Minimum length should be 2 characters')      
+      .max(250, 'Students Name must be maximum 250 characters'),
+  father_name: yup
+      .string()
+      .required('Fathers Name is required')
+      .matches(/^[a-zA-Z\s]+$/, 'Only alphabets and spaces are allowed')
+      .min(2, 'Minimum length should be 2 characters')
+      .max(250, 'Fathers Name must be maximum 250 characters'),
+  mother_name: yup
+      .string()
+      .required('Mothers Name is required')
+      .matches(/^[a-zA-Z\s]+$/, 'Only alphabets and spaces are allowed')
+      .min(2, 'Minimum length should be 2 characters')      
+      .max(250, 'Mothers Name must be maximum 250 characters'),
+  startdate: yup
+      .date()
+      .typeError('DOB must be a valid date'),
+    //category: yup.string().required('Category is required'),
+    cast: yup.string().required('Cast is required'),
+    father_occupation: yup.string().required('Fathers Occupation is required').max(100, 'Maximum 100 characters allowed'),
+    mother_occupation: yup.string().required('Mothers Occupation is required').max(100, 'Maximum 100 characters allowed'),
+    comments: yup.string().max(200, 'Maximum 200 characters allowed'),
+    height: yup.number().typeError('Height must be a number').min(0, 'Height must be greater than or equal to 0').integer('Height must be an integer'),
+    weight: yup.number().typeError('Weight must be a number').min(0, 'Height must be greater than or equal to 0').integer('Weight must be an integer'),
+    address_permanent: yup.string().required('Address is required'),
+    //province: yup.string().required('Province is required'),
+    city: yup.string().required('City is required'),
+    pincode: yup.string().matches(/^(?:[0-9]{6})?$/, 'Pincode must be 6 digits'),
+    mobile1: yup.string().required('Mobile 1 is required').matches(/^[0-9]{10}$/, 'Mobile must be 10 digits'),
+    mobile2: yup.string().matches(/^(?:[0-9]{10})?$/, 'Mobile must be 10 digits'),
+    email: yup.string().email('Invalid email'),
+    passing_year: yup.number().typeError('Passing Year must be a number').min(0, 'Height must be greater than or equal to 0').integer('Passing Year must be an integer'),
+    guardian_name: yup.string().nullable().matches(/^[a-zA-Z\s]*$/, 'Only alphabets and spaces are allowed').max(200, 'Maximum 200 characters allowed'),
+    guardian_contact: yup.string().matches(/^(?:[0-9]{10})?$/, 'Guardian contact must be 10 digits'),
+    grade: yup.string().required('Grade is required'),
+    section: yup.string().required('Section is required'),
+    medium: yup.string().required('Medium is required'),
+    aadhar_no: yup.string().matches(/^(?:[0-9]{12})?$/, 'Aadhar must be 12 digits'),
+    student_pic: yup
+      .mixed()
+      .test('fileSize', 'File size is too large. Max allowed 2MB.', (value) => {
+        // Check if the value is a File object
+        if (value && value.length) {
+          const file = value[0];
+          // Check if the file size is less than or equal to 5MB (5000000 bytes)
+          return file.size <= 2000000; // 5MB in bytes
+        }
+        // Return true if there's no file (allow empty field)
+        return true;
+      })
+})
+
 const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({
@@ -112,12 +156,6 @@ const handleChange = (event) => {
     });
 };
 const messagetext = "Student Registration";
-const handleSubmit = (event) => {
-    event.preventDefault();
-    // Handle form submission
-    const formData = new FormData(event.target);
-    console.log(formData);
-};
 
 const genderList = glist.genderList;
 const bloodGroupList = glist.choicesOfBloodGroup;
@@ -126,24 +164,84 @@ const bodyTypeList = glist.choicesOfBodyType;
 const relationshipList = glist.choicesOfRelationship;
 const 
     {
-        register, 
-        setError,          
-        reset,
-        control,
-        formState:{errors, isSubmitting},
-    } = useForm();
+      register, 
+      setError, 
+      handleSubmit, 
+      reset,
+      watch,
+      control,
+      formState:{errors, isSubmitting},
+    } = useForm({defaultValues:defaultValues, resolver:yupResolver(schema)});
 
-    /* const currentDate = new Date().toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }); */
-    const currentDate = dayjs().format('DD/MM/YYYY');
-    const formattedDate = dayjs().format('YYYYMMDDHHmmss');
+    //saveStudent
+    const saveStudent = async(data) => {
+      setError("");
+      try{
+          console.log(data);     
+          console.log(selectedCategory);
+          console.log(selectedProvince);
+          console.log(registrationDate);
+          console.log(registrationNo);
+          data.province = selectedProvince
+          data.category = selectedCategory    
+          data.registration_date = registrationDate
+          data.registration_no = registrationNo  
+
+          const registration_date = dayjs(data.registration_date["$d"])?.format("YYYY-MM-DD")
+          data.registration_date = registration_date
+          console.log("After: ",data)
+          const dob = data?.dob ?dayjs(data?.dob["$d"])?.format("YYYY-MM-DD"): ''
+          data.dob = dob
+          
+          data.name = data.sname  
+          console.log("After: ",data)
+
+          /* const res = await customaxios.post('/api/v1/students/student-registration/',{
+              registration_date: registration_date,
+              registration_no: data.registration_no,
+              name: data.sname,
+              father_name: data.father_name,
+              mother_name: data.mother_name,
+              dob: dob,
+              category: data.category,
+              cast: data.cast,
+              nationality: data.nationality,
+              religion: data.religion,
+              father_occupation: data.father_occupation,
+              mother_occupation: data.mother_occupation,
+              comments: data.comments,
+              blood_group: data.blood_group,
+              height: data.height,
+              weight: data.weight,
+              bodytype: data.bodytype,
+              gender: data.gender,
+              address_permanent: data.address_permanent,
+              landmark: data.landmark,
+              province: data.province,
+              city: data.city,
+              pincode: data.pincode,
+              mobile1: data.mobile1,
+
+              branch: localStorage.getItem('branch')
+          })
+          console.log("res ", res); */
+          reset();
+          //getData();
+      }catch(error){
+          console.log(error);
+          //setError("root",{message: Object.values(error.response.data)[0]});    
+      }        
+  };
+    
+    /* let currentDate = dayjs().format('DD/MM/YYYY');
+    let formattedDate = dayjs().format('YYYYMMDDHHmmss'); */
+    
 
     const getData = () => {      
       const access_token = localStorage.getItem('access_token');
       const branchid = localStorage.getItem('branch');
+      setRegistrationDate(dayjs().format('DD/MM/YYYY'));
+      setRegistrationNo(dayjs().format('YYYYMMDDHHmmss'))
       //get category list
       getCategoryData(access_token, setCategoryList)
       //get provinnce list      
@@ -189,9 +287,9 @@ return (
     <Box sx={{ display: 'flex', justifyContent: 'center', p: 1, pr:2 }}>
       <Paper sx={{ p: 3, width: '100%' }}>
         <Stack spacing={2}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" bgcolor={green[200]} sx={{
+        <Box display="flex" justifyContent="space-between" alignItems="center" bgcolor={green[100]} sx={{
           p: 2, // Adds padding inside the Box, value can be adjusted
-          borderRadius: 2, // Softens the edges, value can be adjusted for more rounded corners
+          borderRadius: 0, // Softens the edges, value can be adjusted for more rounded corners
           boxShadow: 1, // Optional: Adds a subtle shadow for depth, can be adjusted or removed
         }}> {/* Adjusted color */}
           <Box display="flex" alignItems="center">
@@ -205,7 +303,7 @@ return (
           <MyButton variant="contained" color="success" startIcon={<ListIcon />}>List Students</MyButton>
         </Box>
         <Divider />
-        <form method='post' onSubmit={handleSubmit} noValidate>        
+        <form method='post' onSubmit={handleSubmit(saveStudent)} noValidate>        
         {/* <Box 
           ml={2} 
           sx={{ 
@@ -220,41 +318,135 @@ return (
           <Grid container spacing={2}>
             <Grid item xs={6}>
                 <Box mb={2}>
-                  <PrjTextFields label="Registration Date" name='registration_date' id='registration_date' value={currentDate} readOnly size="small" InputLabelProps={{ shrink: true }} fullWidth={false}/>&nbsp;&nbsp;
-                  <PrjTextFields label="Registration No" name='registration_no' size="small" value={formattedDate} readOnly InputLabelProps={{ shrink: true }}/>
+                  <PrjTextFields label="Registration Date" name='registration_date' 
+                  id='registration_date' value={registrationDate} readOnly size="small" InputLabelProps={{ shrink: true }} 
+                  fullWidth={false} control={control}/>
+                  
+                  {/* <PrjTextFields
+                    label="Registration Date"
+                    name="registration_date"
+                    id="registration_date"
+                    value={currentDate}                    
+                    size="small"
+                    InputLabelProps={{ shrink: true, readOnly: true }}
+                    fullWidth={false}
+                    control={control}
+                  /> */}
+
+                  {/* <TextField
+                    disabled
+                    label="Registration Date"
+                    defaultValue={currentDate}
+                    value={currentDate}
+                    size='small'
+                    {...register("registration_date")}
+                  /> */}
+
+                  &nbsp;&nbsp;
+                  <PrjTextFields label="Registration No" name='registration_no' size="small" value={registrationNo} readOnly InputLabelProps={{ shrink: true }} 
+                  control={control}/>
+                  <Box mb={2}>                    
+                  </Box>
                 </Box>
                 <Box mb={2}>
                     {/* <TextField label="Student's Name" name='name' size="small" fullWidth id="name"/> */}
-                    <PrjTextFields label="Student's Name*" name='name' size="small" id="name" width='100%'/>
+                    <PrjTextFields label="Student's Name*" name='sname' size="small" id="sname" width='100%' control={control}/>                    
                 </Box>
-                <Box mb={2}><PrjTextFields label="Father's Name*" name='father_name' size="small" width='100%' /></Box>
-                <Box mb={2}><PrjTextFields label="Mother's Name*" name='mother_name' size="small" width='100%' /></Box>
+                <Box mb={2}>
+                  {errors.sname && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.sname.message}
+                    </Alert>
+                  )}
+                </Box>
+                <Box mb={2}><PrjTextFields label="Father's Name*" name='father_name' size="small" width='100%' control={control}/></Box>
+                <Box mb={2}>
+                  {errors.father_name && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.father_name.message}
+                    </Alert>
+                  )}
+                </Box>
+                <Box mb={2}><PrjTextFields label="Mother's Name*" name='mother_name' size="small" width='100%' control={control}/></Box>
+                <Box mb={2}>
+                  {errors.mother_name && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.mother_name.message}
+                    </Alert>
+                  )}
+                </Box>
                 <Box mb={2}></Box>                
 
                 <Box mb={2}>
                   <PrjSelectFields 
                   options={categoryList} label="Category*" name="category" variant="outlined" size="small" 
-                  width='45%' control={control} id='category' value={selectedCategory} onChange={handleCategoryChange}/>                  
+                  width='45%' control={control} id='category' value={selectedCategory} onChange={handleCategoryChange}/>       
+                  {/* <MySelect options={categoryList} label="Category*" name="category" variant="outlined"  
+                  width='45%' control={control} defaultValue={selectedCategory} onChange={handleCategoryChange}/>   */}     
                   &nbsp;&nbsp;
                   <PrjSelectFields 
                   options={castList} label="Cast*" name="cast" variant="outlined" size="small" width='45%'
-                  control={control} defaultValue='' id='cast' />
-
+                  control={control} defaultValue='' id='cast' />            
+                </Box>
+                <Box mb={2}>
+                  {errors.category && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.category.message}
+                    </Alert>
+                  )}
+                  {errors.cast && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.cast.message}
+                    </Alert>
+                  )}
                 </Box>
               <Box mb={2}>                
                 <PrjSelectFields options={religionList} label="Religion" name="religion" variant="outlined" size="small" sx={{minWidth: 120}} control={control} width='45%' defaultValue='No Preference'/>
               </Box>
-              <Box mb={2}><PrjTextFields label="Comment" name='comments' size="small" width='100%' /></Box>
+              <Box mb={2}><PrjTextFields label="Comment" name='comments' size="small" width='100%' control={control} /></Box><Box mb={2}>
+                  {errors.comments && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.comments.message}
+                    </Alert>
+                  )}
+                </Box>
               <Box mb={2}>
-                <TextField name='student_pic' size="small" type='file'/><FormHelperText>Upload Student Pic</FormHelperText>
+                <TextField name='student_pic' size="small" type='file' {...register('student_pic')}/><FormHelperText>Upload Student Pic(Max size allowed: 2MB) </FormHelperText>
               </Box>
+              <Box mb={2}>
+                  {errors.student_pic && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.student_pic.message}
+                    </Alert>
+                  )}
+                </Box>
             </Grid>
             <Grid item xs={6}>
             
-              <Box mb={2}><PrjDatePicker label="DOB" name='dob' control={control} size="small"  requiredMsg=""/></Box>
-              <Box mb={2}><PrjTextFields label="Nationality*" name='nationality' readOnly size="small" defaultValue="Indian" value="Indian"/></Box>
-              <Box mb={2}><PrjTextFields label="Father's Occupation" name='father_occupation' size="small"  /></Box>
-              <Box mb={2}><PrjTextFields label="Mother's Occupation" name='mother_occupation' size="small"  /></Box>
+              <Box mb={2}><PrjDatePicker label="DOB" name='dob' control={control} size="small"  requiredMsg=""/></Box><Box mb={2}>
+                  {errors.dob && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.dob.message}
+                    </Alert>
+                  )}
+                </Box>
+              <Box mb={2}><PrjTextFields label="Nationality*" name='nationality' readOnly size="small" defaultValue="Indian" value="Indian"  control={control}/></Box>
+              <Box mb={2}><PrjTextFields label="Father's Occupation" name='father_occupation' size="small" control={control} /></Box>
+              <Box mb={2}>
+                  {errors.father_occupation && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.father_occupation.message}
+                    </Alert>
+                  )}
+                </Box>
+              <Box mb={2}><PrjTextFields label="Mother's Occupation" name='mother_occupation' size="small" control={control} /></Box>
+              <Box mb={2}>
+                  {errors.mother_occupation && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.mother_occupation.message}
+                    </Alert>
+                  )}
+                </Box>
               
               <PrjSelectFields options={genderList} label="Gender" name="gender" variant="outlined" size="small" sx={{minWidth: 120}} control={control} defaultValue="No Preference"/>
             </Grid>
@@ -272,13 +464,27 @@ return (
           <GroupHeader title="Physical Info" />  
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Box mb={2}><PrjTextFields label="Height" size="small" name='height' type="number" width='30%' /></Box>
+              <Box mb={2}><PrjTextFields label="Height" size="small" name='height' type="number" id="height" width='30%' control={control} defaultValue={0}/></Box>
+              <Box mb={2}>
+                  {errors.height && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.height.message}
+                    </Alert>
+                  )}
+                </Box>
               <Box mb={2}>
               <PrjSelectFields options={bloodGroupList} label="Blood Group" name="blood_group" width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} defaultValue="None"/>
               </Box>
             </Grid>
             <Grid item xs={6}>
-              <Box mb={2}><PrjTextFields label="Weight" name='weight' size="small" type="number" width='30%' /></Box>
+              <Box mb={2}><PrjTextFields label="Weight" name='weight' size="small" type="number" width='30%' control={control} defaultValue={0}/></Box>
+              <Box mb={2}>
+                  {errors.weight && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.weight.message}
+                    </Alert>
+                  )}
+                </Box>
               <Box mb={2}>
               <PrjSelectFields options={bodyTypeList} label="Body Type" name="bodytype" width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} defaultValue="Normal"/>
               </Box>
@@ -297,24 +503,71 @@ return (
           <GroupHeader title="Contact Info" />
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Box mb={2}><PrjTextFields label="Address" name='address_permanent' size="small" fullWidth width='100%'/></Box>
+              <Box mb={2}><PrjTextFields label="Address" name='address_permanent' control={control} size="small" fullWidth width='100%'/></Box>
               <Box mb={2}>
-              
-              <PrjSelectFields options={provinceList} label="Province*" name="province" 
-              width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} 
-              value={selectedProvince} id='province' onChange={handleProvinceChange}/>
+                  {errors.address_permanent && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.address_permanent.message}
+                    </Alert>
+                  )}
+                </Box>
+              <Box mb={2}>              
+                <PrjSelectFields options={provinceList} label="Province*" name="province" 
+                width='30%' variant="outlined" size="small" control={control} 
+                value={selectedProvince} id='province' onChange={handleProvinceChange}/>              
               </Box>
-              <Box mb={2}><PrjTextFields label="Pincode" name='pincode' size="small"  /></Box>
-              <Box mb={2}><PrjTextFields label="Mobile 1" name='mobile1' size="small"  />&nbsp;&nbsp;<PrjTextFields label="Mobile 2" name='mobile2' size="small"  /></Box>              
-              <Box mb={2}><PrjTextFields type='email' label="Email" name='email' size="small" width="70%" /></Box>
+              <Box mb={2}>
+                  {errors.province && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.province.message}
+                    </Alert>
+                  )}
+                </Box>
+              <Box mb={2}><PrjTextFields label="Pincode" name='pincode' size="small" control={control}/></Box>
+              <Box mb={2}>
+                  {errors.pincode && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.pincode.message}
+                    </Alert>
+                  )}
+                </Box>
+              <Box mb={2}><PrjTextFields label="Mobile 1" name='mobile1' size="small" control={control}/>              
+              &nbsp;&nbsp;<PrjTextFields label="Mobile 2" name='mobile2' size="small" control={control}/></Box>  
+                <Box mb={2}>
+                {errors.mobile1 && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.mobile1.message}
+                    </Alert>
+                  )}
+                  {errors.mobile2 && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.mobile2.message}
+                    </Alert>
+                  )}
+                </Box>            
+              <Box mb={2}><PrjTextFields type='email' label="Email" name='email' size="small" width="70%" control={control}/></Box>
+              <Box mb={2}>
+                  {errors.email && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.email.message}
+                    </Alert>
+                  )}
+                </Box>
             </Grid>
             <Grid item xs={6}>
-              <Box mb={2}><PrjTextFields label="Landmark" name='landmark' size="small" /></Box>
+              <Box mb={2}><PrjTextFields label="Landmark" name='landmark' size="small" control={control}/></Box>
               <Box mb={2}>
               <PrjSelectFields options={cityList} label="City*" name="city" 
               width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} 
               defaultValue='' id='city' />
               </Box>
+              <Box mb={2}>
+                  {errors.city && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.city.message}
+                    </Alert>
+                  )}
+                </Box>
             </Grid>
           </Grid>
 
@@ -331,9 +584,9 @@ return (
           <GroupHeader title="Previous Academic Details" />
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Box mb={2}><PrjTextFields label="Previous School" size="small" id="previous_school_name" name='previous_school_name' width="100%"/></Box>
+              <Box mb={2}><PrjTextFields label="Previous School" size="small" id="previous_school_name" name='previous_school_name' width="100%" control={control}/></Box>
               <Box mb={2}>
-                <PrjTextFields label="TC Number" size="small" id="tc_no" name='tc_no'/>&nbsp;&nbsp;
+                <PrjTextFields label="TC Number" size="small" id="tc_no" name='tc_no' control={control}/>&nbsp;&nbsp;
                 <FormControl sx={{minWidth: 220 }}>
                 <InputLabel id="student_type-select-label">Student Type</InputLabel>
                 <Select
@@ -344,19 +597,27 @@ return (
                   onChange={handleChange}
                   size='small'
                   defaultValue={'Old'}
+                  {...register("student_type")}
                 >
                   <MenuItem value={'Old'}>Old</MenuItem>
                   <MenuItem value={'New'}>New</MenuItem>
                 </Select>
               </FormControl>
               </Box>
-              <Box mb={2}><PrjTextFields label="Remark" size="small" name='remarks' id="remarks" width="100%"/></Box>
+              <Box mb={2}><PrjTextFields label="Remark" size="small" name='remarks' id="remarks" width="100%" control={control}/></Box>
             </Grid>
             <Grid item xs={6}>
               <Box mb={2}>
-                <PrjTextFields label="Previous Class" size="small" name='previous_class' id="previous_class"/>&nbsp;&nbsp;
-                <PrjTextFields label="Passing Year" size="small" type='number' name='passing_year' id="passing_year" defaultValue={0}/>  
+                <PrjTextFields label="Previous Class" size="small" name='previous_class' id="previous_class" control={control}/>&nbsp;&nbsp;
+                <PrjTextFields label="Passing Year" size="small" type='number' name='passing_year' id="passing_year" defaultValue={0} control={control}/>                  
               </Box>
+              <Box mb={2}>
+                  {errors.passing_year && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.passing_year.message}
+                    </Alert>
+                  )}
+                </Box>
             </Grid>
           </Grid>
 
@@ -373,14 +634,29 @@ return (
           <GroupHeader title="In case of Emergency" />
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Box mb={2}><PrjTextFields label="Person Name" size="small" id="guardian_name" name='guardian_name' width="100%"/></Box>
+              <Box mb={2}><PrjTextFields label="Person Name" size="small" id="guardian_name" name='guardian_name' width="100%" control={control}/></Box>
+              <Box mb={2}>
+                  {errors.guardian_name && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.guardian_name.message}
+                    </Alert>
+                  )}
+                </Box>
             </Grid>
             <Grid item xs={6}>
               <Box mb={2}>
-                <PrjTextFields label="Person Contact" size="small" id="guardian_contact" name='guardian_contact'/>&nbsp;&nbsp;                
+                <PrjTextFields label="Person Contact" size="small" id="guardian_contact" name='guardian_contact' control={control}/>
+                &nbsp;&nbsp;                
               <PrjSelectFields options={relationshipList} label="Relationship" name="relationship" 
               width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} 
               defaultValue='No Preference' id='relationship' />
+              <Box mb={2}>
+                  {errors.guardian_contact && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.guardian_contact.message}
+                    </Alert>
+                  )}
+                </Box>
               </Box>
             </Grid>
           </Grid>
@@ -408,7 +684,20 @@ return (
                 width='30%' variant="outlined" size="small" sx={{minWidth: 120}} control={control} 
                 defaultValue='' id='section' />
                 &nbsp;&nbsp;
-
+                <Box mb={2}>
+                  {errors.grade && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.grade.message}
+                    </Alert>
+                  )}
+                </Box>
+                <Box mb={2}>
+                  {errors.section && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.section.message}
+                    </Alert>
+                  )}
+                </Box>
               </Box>
               
             </Grid>
@@ -429,13 +718,20 @@ return (
                     onChange={handleChange}
                     size='small'
                     defaultValue={'Own'}
+                    {...register("status_school")}
                   >
                     <MenuItem value={'Own'}>Own</MenuItem>
                     <MenuItem value={'Granted'}>Granted</MenuItem>
                     <MenuItem value={'Other'}>Other</MenuItem>
                   </Select>
               </FormControl>
-                
+              <Box mb={2}>
+                  {errors.medium && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.medium.message}
+                    </Alert>
+                  )}
+                </Box> 
               </Box>
             </Grid>
           </Grid>
@@ -464,14 +760,21 @@ return (
               <Box mb={2}>
                 <PrjTextFields label="Aadhar No." size="small" name='aadhar_no' id="aadhar_no" control={control}/>
               </Box>
+              <Box mb={2}>
+                  {errors.aadhar_no && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {errors.aadhar_no.message}
+                    </Alert>
+                  )}
+                </Box> 
               <Box mb={2}><TextField type='file' size="small" id="aadhar_front" name='aadhar_front' fullWidth/><FormHelperText>Aadhar Front</FormHelperText></Box>
               <Box mb={2}><TextField type='file' size="small" id="aadhar_back" name='aadhar_back' fullWidth/><FormHelperText>Aadhar Back</FormHelperText></Box>
             </Grid>
             <Grid item xs={6}>
               <Box mb={2}>
-                <PrjTextFields label="Account No." size="small" id="account_no" name='account_no' />
+                <PrjTextFields label="Account No." size="small" id="account_no" name='account_no' control={control}/>
               </Box>
-              <Box mb={2}><PrjTextFields label="IFSC Code" size="small" id="ifsc_code" name='ifsc_code' /></Box>
+              <Box mb={2}><PrjTextFields label="IFSC Code" size="small" id="ifsc_code" name='ifsc_code' control={control}/></Box>
             </Grid>
           </Grid>
           <Divider  mt={2}/>
@@ -484,11 +787,11 @@ return (
 
             <Grid item xs={4}>
               <Box mb={2} mt={6}>
-                <Button type='submit' variant="contained" endIcon={<SaveIcon />} color="success">
-                  Save
+                <Button type='submit' disabled={isSubmitting} variant="contained" endIcon={<SaveIcon />} color="success">
+                {isSubmitting?"Form Submitting...":"Save"}
                 </Button>
-                <Button sx={{marginLeft:'6px'}} type='button' variant="contained" endIcon={<ClearIcon />} color="warning">
-                  Clear
+                <Button sx={{marginLeft:'6px'}} type='button' disabled={isSubmitting} variant="contained" endIcon={<ClearIcon />} color="warning">
+                {isSubmitting?"...":"Clear"}
                 </Button>
               </Box>
             </Grid>
@@ -499,6 +802,7 @@ return (
               </Box>
             </Grid>
           </Grid>
+          
           </form>  
         </Stack>
       </Paper>

@@ -22,7 +22,7 @@ axiosInstance.interceptors.request.use((request)=>{
 })
 
 axiosInstance.interceptors.response.use((response)=>{
-    console.log("got response from backend");
+    console.log("got response from backend ",response);
     return response;
 },(error)=>{
     console.log("error from backend:<< ", error['response']);

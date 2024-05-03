@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import FormHelperText from '@mui/material/FormHelperText';
 
-const MySelect = ({ control, name, label, options, rules, ...props }) => {
+const MySelect = ({ control, name, width, label, options, rules, ...props }) => {
   const defaultValue = options.length > 0 ? options[0].value : '';  
   return (
     <Controller
@@ -15,7 +15,7 @@ const MySelect = ({ control, name, label, options, rules, ...props }) => {
       rules={rules}
       defaultValue={defaultValue}
       render={({ field: { onChange, value, ref }, fieldState: { error } }) => (
-        <FormControl fullWidth sx={{mt:3, mb:1}} error={!!error}>
+        <FormControl fullWidth sx={{mt:3, mb:1, width:{width}}} error={!!error}>
           <InputLabel>{label}</InputLabel>
           <Select
             value={value}

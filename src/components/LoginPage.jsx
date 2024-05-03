@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import customaxios from '../Axios/customaxios';
 import { Alert } from '@mui/material';
 import MySelect from './MySelect';
+import { getSessionDetails } from '../utils/globalconfigsjs';
 
 function Copyright(props) {
   return (
@@ -72,6 +73,9 @@ export default function LoginPage() {
           localStorage.setItem('username', res.data.name);
           localStorage.setItem('branch', res.data.branch);
           localStorage.setItem('branch_name', res.data.branch_name);
+          if(res.data.branch){
+            getSessionDetails(res.data.access_token);
+          }
           navigate('/dashboard');
         }
         
@@ -154,7 +158,7 @@ const handleChange = (event) => {
                   name="branch"
                   label="Branch"
                   options={options}
-                  rules={{ required: 'Branch is required' }}                  
+                  rules={{ required: 'Branch is required' }} width="50%"                
                 />
 
                 <TextField

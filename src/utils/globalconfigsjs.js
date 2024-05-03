@@ -129,3 +129,18 @@ export const getSectionData = async(access_token, branchid, setSectionList) => {
           console.log(error);
       });
 }
+
+//Get Latest Academic Year
+export const getSessionDetails = async (access_token) => {
+    const branchid = localStorage.getItem('branch');
+    await customaxios.get(`api/v1/admin/academicyear/csession/${branchid}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${access_token}`
+    }
+  }).then((res) => {
+    console.log(res.data);
+    localStorage.setItem("sessionid",res.data.id);
+    localStorage.setItem("sessionformat",res.data.session_displayformat);
+  });
+}
