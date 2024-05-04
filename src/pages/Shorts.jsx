@@ -9,7 +9,6 @@ import { PrjSelectFields } from '../components/PrjSelectFields';
 import { set, useForm } from 'react-hook-form';
 
 import PrjTextFields from '../components/PrjTextFields';
-import SelectDropdown from '../components/SelectDropdown';
 import customaxios from '../Axios/customaxios';
 import PrjDatePicker from '../components/PrjDatePicker';
 import SaveIcon from '@mui/icons-material/Save';
@@ -21,7 +20,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Alert } from '@mui/material';
 
 import dayjs from 'dayjs';
-import MySelect from '../components/MySelect';
 
 function Shorts() {
 
@@ -59,7 +57,7 @@ function Shorts() {
     remarks: '',
     student_type: 'Old',
     guardian_name: '',
-    relationship: 'No Prefrence',
+    relationship: 'No Preference',
     guardian_contact: '',
     grade: '',
     section: '',
@@ -90,6 +88,8 @@ const [sectionList, setSectionList] = useState([]);
 
 const [registrationDate, setRegistrationDate] = useState(null);
 const [registrationNo, setRegistrationNo] = useState(null);
+
+const [studentPic, setStudentPic] = useState(null);
 
 const schema = yup.object().shape({
   sname: yup
@@ -173,15 +173,12 @@ const
       formState:{errors, isSubmitting},
     } = useForm({defaultValues:defaultValues, resolver:yupResolver(schema)});
 
-    //saveStudent
+    //saveStudent logic here   
+
     const saveStudent = async(data) => {
       setError("");
       try{
-          console.log(data);     
-          console.log(selectedCategory);
-          console.log(selectedProvince);
-          console.log(registrationDate);
-          console.log(registrationNo);
+          console.log(data); 
           data.province = selectedProvince
           data.category = selectedCategory    
           data.registration_date = registrationDate
@@ -190,41 +187,69 @@ const
           const registration_date = dayjs(data.registration_date["$d"])?.format("YYYY-MM-DD")
           data.registration_date = registration_date
           console.log("After: ",data)
-          const dob = data?.dob ?dayjs(data?.dob["$d"])?.format("YYYY-MM-DD"): ''
-          data.dob = dob
-          
-          data.name = data.sname  
+          const dob = data?.dob ?dayjs(data?.dob["$d"])?.format("YYYY-MM-DD"): null
+          data.dob = dob          
+          data.name = data.sname 
+          data.branch = localStorage.getItem('branch');
+          data.academic_year = localStorage.getItem('sessionid');
+          data.student_pic= studentPic;
           console.log("After: ",data)
 
-          /* const res = await customaxios.post('/api/v1/students/student-registration/',{
-              registration_date: registration_date,
-              registration_no: data.registration_no,
-              name: data.sname,
-              father_name: data.father_name,
-              mother_name: data.mother_name,
-              dob: dob,
-              category: data.category,
-              cast: data.cast,
-              nationality: data.nationality,
-              religion: data.religion,
-              father_occupation: data.father_occupation,
-              mother_occupation: data.mother_occupation,
-              comments: data.comments,
-              blood_group: data.blood_group,
-              height: data.height,
-              weight: data.weight,
-              bodytype: data.bodytype,
-              gender: data.gender,
-              address_permanent: data.address_permanent,
-              landmark: data.landmark,
-              province: data.province,
-              city: data.city,
-              pincode: data.pincode,
-              mobile1: data.mobile1,
 
-              branch: localStorage.getItem('branch')
-          })
-          console.log("res ", res); */
+          const formData = new FormData();
+          // Append main data
+          for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+              formData.append(key, data[key]);
+            }
+          }
+
+          // Append academicStudent data directly
+          const academicstudata = {
+            grade: data.grade,
+            section: data.section,
+            branch: data.branch,
+            medium: data.medium,
+            academic_year: data.academic_year,
+            comments: 'Data Registered via UI'
+          }
+          formData.append('academicStudent', {
+            grade: data.grade,
+            section: data.section,
+            branch: data.branch,
+            medium: data.medium,
+            academic_year: data.academic_year,
+            comments: 'Data Registered via UI'
+          });
+          /* formData.append('academicStudent.grade', data.grade);
+          formData.append('academicStudent.section', data.section);
+          formData.append('academicStudent.branch', data.branch);
+          formData.append('academicStudent.medium', data.medium);
+          formData.append('academicStudent.academic_year', data.academic_year);
+          formData.append('academicStudent.comments', 'Data Registered via UI'); */
+
+          // Append bankAndAadhar data directly
+          const bankAndAadhar = {
+            aadhar_no: data.aadhar_no,
+            bank: data.bank,
+            account_no: data.account_no,
+            ifsc_code: data.ifsc_code,
+            bank_branch: data.bank_branch
+          }
+          formData.append('bankAndAadhar', bankAndAadhar);
+          /* formData.append('bankAndAadhar.aadhar_no', data.aadhar_no);
+          formData.append('bankAndAadhar.bank', data.bank);
+          formData.append('bankAndAadhar.account_no', data.account_no);
+          formData.append('bankAndAadhar.ifsc_code', data.ifsc_code);
+          formData.append('bankAndAadhar.bank_branch', data.bank_branch); */
+
+          const res = await customaxios.post('/api/v1/students/student-registration/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          });
+    
+          console.log("res ", res);
           reset();
           //getData();
       }catch(error){
@@ -283,6 +308,10 @@ const
     setSelectedProvince(event.target.value);
   };
 
+  const handleFileChange = (e) => {
+    setStudentPic(e.target.files[0]); // Update state with selected file
+  };
+
 return (
     <Box sx={{ display: 'flex', justifyContent: 'center', p: 1, pr:2 }}>
       <Paper sx={{ p: 3, width: '100%' }}>
@@ -303,7 +332,7 @@ return (
           <MyButton variant="contained" color="success" startIcon={<ListIcon />}>List Students</MyButton>
         </Box>
         <Divider />
-        <form method='post' onSubmit={handleSubmit(saveStudent)} noValidate>        
+        <form method='post' onSubmit={handleSubmit(saveStudent)} noValidate encType="multipart/form-data">        
         {/* <Box 
           ml={2} 
           sx={{ 
@@ -320,28 +349,8 @@ return (
                 <Box mb={2}>
                   <PrjTextFields label="Registration Date" name='registration_date' 
                   id='registration_date' value={registrationDate} readOnly size="small" InputLabelProps={{ shrink: true }} 
-                  fullWidth={false} control={control}/>
+                  fullWidth={false} control={control}/>                 
                   
-                  {/* <PrjTextFields
-                    label="Registration Date"
-                    name="registration_date"
-                    id="registration_date"
-                    value={currentDate}                    
-                    size="small"
-                    InputLabelProps={{ shrink: true, readOnly: true }}
-                    fullWidth={false}
-                    control={control}
-                  /> */}
-
-                  {/* <TextField
-                    disabled
-                    label="Registration Date"
-                    defaultValue={currentDate}
-                    value={currentDate}
-                    size='small'
-                    {...register("registration_date")}
-                  /> */}
-
                   &nbsp;&nbsp;
                   <PrjTextFields label="Registration No" name='registration_no' size="small" value={registrationNo} readOnly InputLabelProps={{ shrink: true }} 
                   control={control}/>
@@ -411,7 +420,7 @@ return (
                   )}
                 </Box>
               <Box mb={2}>
-                <TextField name='student_pic' size="small" type='file' {...register('student_pic')}/><FormHelperText>Upload Student Pic(Max size allowed: 2MB) </FormHelperText>
+                <TextField name='student_pic' size="small" type='file' {...register('student_pic')} onChange={handleFileChange}/><FormHelperText>Upload Student Pic(Max size allowed: 2MB) </FormHelperText>
               </Box>
               <Box mb={2}>
                   {errors.student_pic && (

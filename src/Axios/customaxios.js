@@ -15,7 +15,8 @@ axiosInstance.interceptors.request.use((request)=>{
     const access_token = localStorage.getItem('access_token');
     if (access_token) {
       request.headers['Authorization'] = `Bearer ${access_token}`;
-    }
+    }    
+    //request.headers['Content-Type'] = 'multipart/form-data';
     return request;
 },(error)=>{
     return Promise.reject(error);
