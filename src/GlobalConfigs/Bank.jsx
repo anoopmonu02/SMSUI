@@ -100,7 +100,7 @@ function Bank() {
                     {...register("bank", 
                     { required: "Bank name is required",
                     pattern: {
-                        value: /^[A-Za-z]+$/i,
+                        value: /^[A-Za-z\s]+$/i,
                         message: 'Only letters are allowed and no special characters!'
                       },
                     minLength: {

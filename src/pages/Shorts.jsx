@@ -18,6 +18,8 @@ import { doCastLoad, doCityLoad, getBankData, getCategoryData, getGradeData, get
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Alert } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import dayjs from 'dayjs';
 
@@ -174,9 +176,11 @@ const
     } = useForm({defaultValues:defaultValues, resolver:yupResolver(schema)});
 
     //saveStudent logic here   
-
+const handleReset = () => {
+  setRegistrationNo(dayjs().format('YYYYMMDDHHmmss'));
+}
     const saveStudent = async(data) => {
-      setError("");
+      setError("");      
       try{
           console.log(data); 
           data.province = selectedProvince
@@ -192,65 +196,81 @@ const
           data.name = data.sname 
           data.branch = localStorage.getItem('branch');
           data.academic_year = localStorage.getItem('sessionid');
-          data.student_pic= studentPic;
+          if(studentPic){
+            data.student_pic= studentPic;
+          }
+          
           console.log("After: ",data)
-
-
-          const formData = new FormData();
-          // Append main data
-          for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-              formData.append(key, data[key]);
-            }
-          }
-
-          // Append academicStudent data directly
-          const academicstudata = {
-            grade: data.grade,
-            section: data.section,
-            branch: data.branch,
-            medium: data.medium,
-            academic_year: data.academic_year,
-            comments: 'Data Registered via UI'
-          }
-          formData.append('academicStudent', {
-            grade: data.grade,
-            section: data.section,
-            branch: data.branch,
-            medium: data.medium,
-            academic_year: data.academic_year,
-            comments: 'Data Registered via UI'
-          });
-          /* formData.append('academicStudent.grade', data.grade);
-          formData.append('academicStudent.section', data.section);
-          formData.append('academicStudent.branch', data.branch);
-          formData.append('academicStudent.medium', data.medium);
-          formData.append('academicStudent.academic_year', data.academic_year);
-          formData.append('academicStudent.comments', 'Data Registered via UI'); */
-
-          // Append bankAndAadhar data directly
-          const bankAndAadhar = {
-            aadhar_no: data.aadhar_no,
-            bank: data.bank,
-            account_no: data.account_no,
-            ifsc_code: data.ifsc_code,
-            bank_branch: data.bank_branch
-          }
-          formData.append('bankAndAadhar', bankAndAadhar);
-          /* formData.append('bankAndAadhar.aadhar_no', data.aadhar_no);
-          formData.append('bankAndAadhar.bank', data.bank);
-          formData.append('bankAndAadhar.account_no', data.account_no);
-          formData.append('bankAndAadhar.ifsc_code', data.ifsc_code);
-          formData.append('bankAndAadhar.bank_branch', data.bank_branch); */
-
-          const res = await customaxios.post('/api/v1/students/student-registration/', formData, {
+          const res = await customaxios.post('/api/v1/students/student-registration/', {
+            name: data.name ,
+            father_name: data.father_name ,
+            mother_name: data.mother_name ,
+            gender: data.gender ,
+            dob: data.dob ,
+            category: data.category ,
+            cast: data.cast ,
+            nationality: data.nationality ,
+            registration_no: data.registration_no ,
+            registration_date: data.registration_date ,
+            religion: data.religion ,
+            father_occupation: data.father_occupation ,
+            mother_occupation: data.mother_occupation ,
+            comments: data.comments ,
+            blood_group: data.blood_group ,
+            height: data.height ,
+            weight: data.weight ,
+            bodytype: data.bodytype ,
+            address_permanent: data.address_permanent ,
+            landmark: data.landmark ,
+            province: data.province ,
+            city: data.city ,
+            pincode: data.pincode ,
+            mobile1: data.mobile1 ,
+            mobile2: data.mobile2 ,
+            email: data.email ,
+            previous_school_name: data.previous_school_name ,
+            previous_class: data.previous_class ,
+            passing_year: data.passing_year ,
+            tc_no: data.tc_no ,
+            remarks: data.remarks ,
+            student_type: data.student_type ,
+            guardian_name: data.guardian_name ,
+            relationship: data.relationship ,
+            guardian_contact: data.guardian_contact ,            
+            status_school: data.status_school ,
+            bank: data.bank ,
+            account_no: data.account_no ,
+            aadhar_no: data.aadhar_no ,
+            bank_branch: data.bank_branch ,
+            ifsc_code: data.ifsc_code ,
+            academicstudents:[{
+              grade: data.grade,
+              section: data.section,
+              branch: data.branch,
+              medium: data.medium,
+              academic_year: data.academic_year,
+              comments: 'Data Registered via UI'
+            }]
+          }, {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              //'Content-Type':'multipart/form-data',
+              'Content-Type':'application/json',
             }
           });
-    
-          console.log("res ", res);
-          reset();
+          if(res.status === 201){
+            //toast.success("Student registered successfully");
+            //save image if selected
+            toast.success("Student registered successfully", { 
+              position: "top-center",
+              autoClose: 3000
+            });
+            console.log("res ", res);
+            reset();
+            handleReset();
+          }else{
+            setError("root",{message: Object.values(res.response.data)[0]});
+          }
+          
           //getData();
       }catch(error){
           console.log(error);
@@ -332,7 +352,7 @@ return (
           <MyButton variant="contained" color="success" startIcon={<ListIcon />}>List Students</MyButton>
         </Box>
         <Divider />
-        <form method='post' onSubmit={handleSubmit(saveStudent)} noValidate encType="multipart/form-data">        
+        <form method='post' onSubmit={handleSubmit(saveStudent)} noValidate >        
         {/* <Box 
           ml={2} 
           sx={{ 
@@ -730,7 +750,7 @@ return (
                     {...register("status_school")}
                   >
                     <MenuItem value={'Own'}>Own</MenuItem>
-                    <MenuItem value={'Granted'}>Granted</MenuItem>
+                    <MenuItem value={'Grant'}>Granted</MenuItem>
                     <MenuItem value={'Other'}>Other</MenuItem>
                   </Select>
               </FormControl>
