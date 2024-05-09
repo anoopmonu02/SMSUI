@@ -144,3 +144,7 @@ export const getSessionDetails = async (access_token) => {
     localStorage.setItem("sessionformat",res.data.session_displayformat);
   });
 }
+
+export const getAllFeeHeads = async (access_token, branch_id) => {
+  
+}
