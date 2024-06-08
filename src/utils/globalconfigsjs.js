@@ -145,6 +145,19 @@ export const getSessionDetails = async (access_token) => {
   });
 }
 
-export const getAllFeeHeads = async (access_token, branch_id) => {
-  
+export const getAllFeeHeads = async (access_token, branch_id, setFeeHeads) => {
+  await customaxios.get(`api/v1/admin/feehead/${branch_id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${access_token}`
+    }
+  }).then((res) => {
+    console.log(res.data);
+    const newOptions = res.data.map((item) => {
+      return { value: item.id, label: item.feehead_name};
+    });
+    setFeeHeads(newOptions)
+  }).catch((error) => {
+    console.log(error);
+  });
 }

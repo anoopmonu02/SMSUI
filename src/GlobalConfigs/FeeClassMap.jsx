@@ -47,11 +47,29 @@ function FeeClassMap() {
       } = useFieldArray({
         control
       });
-    const getData = () => {      
+    const getData = async() => {      
         const access_token = localStorage.getItem('access_token');
         const branchid = localStorage.getItem('branch');        
         getGradeData(access_token, branchid, setGradeList);
+        const qryData = {
+            "branch": localStorage.getItem('branch'),
+            "academicYear": localStorage.getItem('sessionid'),
+            "filterdata":"1"
+        }
+        await customaxios.get('/api/v1/admin/fee-class-mapping/',{
+            params: qryData,
+        },{
 
+        })
+        .then(response => {
+            setMyData(response.data.table_data);
+            console.log("grades", grades)
+            console.log("fee heads", response.data);
+        })
+        .catch(error => {
+        console.error('Error fetching fee heads:', error);
+        });
+        setLoading(false);
         
     }
   
@@ -78,8 +96,7 @@ function FeeClassMap() {
         const qryData = {
             "grade": selectedGrade,
             "branch": localStorage.getItem('branch'),
-            "academicYear": localStorage.getItem('sessionid'),
-            "filterdata":"1"
+            "academicYear": localStorage.getItem('sessionid')
         }
         await customaxios.get('/api/v1/admin/fee-class-mapping/',{
             params: qryData,
@@ -88,7 +105,6 @@ function FeeClassMap() {
         })
         .then(response => {
             setFeeheads(response.data.fee_data);
-            setMyData(response.data.table_data);
             console.log("grades", grades)
             console.log("fee heads", response.data);
         })

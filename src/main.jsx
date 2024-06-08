@@ -21,6 +21,7 @@ import Finehead from './GlobalConfigs/Finehead.jsx';
 import Academicyear from './GlobalConfigs/Academicyear.jsx';
 import MonthMapping from './GlobalConfigs/MonthMapping.jsx';
 import FeeClassMap from './GlobalConfigs/FeeClassMap.jsx';
+import FeeMonthMap from './GlobalConfigs/FeeMonthMap.jsx';
 
 const routerProvider = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ const routerProvider = createBrowserRouter([
       {
         path: "fee-class",
         element: <FeeClassMap />,
+      },
+      {
+        path: "fee-month",
+        element: <FeeMonthMap />,
       },
       {
         path: "shorts",

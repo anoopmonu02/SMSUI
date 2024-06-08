@@ -97,11 +97,11 @@ function Cast() {
             header: 'Cast Name',
             size: 150,
           },
-          {
+          /* {
             accessorKey: 'category.category_name', //access nested data with dot notation
             header: 'Category',
             size: 150,
-          },
+          }, */
         ],
         [],
       );
@@ -113,7 +113,7 @@ function Cast() {
         try{
             console.log(data);
             const res = await customaxios.post('/api/v1/universal/cast/',{
-                category: data.category,
+                //category: data.category,
                 cast_name: data.cast
             })
             console.log("res ", res);
@@ -140,7 +140,7 @@ function Cast() {
                     </Box>                    
 
                     <Box mb={2}>
-                        <FormControl sx={{minWidth: 220 }}>
+                        {/* <FormControl sx={{minWidth: 220 }}>
                             <InputLabel id="category-select-label">Category</InputLabel>
                             <Select
                             labelId="category-select-label"
@@ -158,7 +158,7 @@ function Cast() {
                             </MenuItem>
                             ))}
                             </Select>
-                        </FormControl>
+                        </FormControl> */}
                     </Box>                    
 
                     <MyTextField name="cast" id="cast" label="Cast" 
