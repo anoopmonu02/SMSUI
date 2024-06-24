@@ -146,7 +146,7 @@ export const getSessionDetails = async (access_token) => {
 }
 
 export const getAllFeeHeads = async (access_token, branch_id, setFeeHeads) => {
-  await customaxios.get(`api/v1/admin/feehead/${branch_id}`, {
+  await customaxios.get(`api/v1/admin/feehead/branch/${branch_id}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${access_token}`

@@ -23,7 +23,7 @@ function Feehead() {
 
     const getData = () => {
         console.log("feehead::::::", localStorage.getItem('access_token'));
-        customaxios.get(`/api/v1/admin/feehead`,{
+        customaxios.get(`/api/v1/admin/feehead/?branch=${localStorage.getItem('branch')}`,{
             headers: {
                 'Content-Type': 'application/json'                
             }
